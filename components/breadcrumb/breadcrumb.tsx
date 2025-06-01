@@ -1,3 +1,4 @@
+"use client";
 import {
   Breadcrumb as BreadcrumbComponent,
   BreadcrumbItem,
@@ -5,27 +6,28 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getServerSideURL } from "@/lib/url";
+import { usePathname } from "next/navigation";
 import { pageName } from "./page-name";
 
 export function getPagename(path: string) {
   return pageName[path] ?? path;
 }
 
-async function Breadcrumb() {
-  const url = await getServerSideURL();
-  const parts = ["", ...url.pathname.split("/").filter((p) => p != "")];
+function Breadcrumb() {
+  const pathname = usePathname();
+  const parts = ["", ...pathname.split("/").filter((p) => p != "")];
   return (
     <BreadcrumbComponent>
       <BreadcrumbList>
         {parts.map((part, partIdx) => {
           const link = parts.slice(0, partIdx + 1).join("/");
           return (
-            <div key={`BreadcrumbPart_${partIdx}`}>
-              {partIdx > 0 && (
-                <BreadcrumbSeparator className="hidden md:block" />
-              )}
-              <BreadcrumbItem className="hidden md:block">
+            <div
+              key={`BreadcrumbPart_${partIdx}`}
+              className="flex gap-2 items-center"
+            >
+              {partIdx > 0 && <BreadcrumbSeparator />}
+              <BreadcrumbItem>
                 <BreadcrumbLink href={link}>{getPagename(part)}</BreadcrumbLink>
               </BreadcrumbItem>
             </div>

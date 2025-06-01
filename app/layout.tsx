@@ -1,13 +1,14 @@
+import SidebarWrapper from "@/components/side-bar/sidebar-wrapper.";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/authClient";
+import { MantineProvider } from "@mantine/core";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme/theme-provider";
-import { ConvexClientProvider } from "./convex";
-import SidebarWrapper from "@/components/side-bar/sidebar-wrapper.";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { Toaster } from "@/components/ui/sonner";
-import { MantineProvider } from "@mantine/core";
+import { ConvexClientProvider } from "./convex";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,10 @@ export default async function RootLayout({
   const sessionInstance = await auth.api.getSession({
     headers: await headers(),
   });
+
+  if (!sessionInstance) {
+    await authClient.oneTap();
+  }
 
   return (
     <html lang="en">
