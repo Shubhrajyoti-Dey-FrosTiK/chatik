@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
     model: google("gemini-2.0-flash-001"),
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream(),
+    maxOutputTokens: 1000,
     onFinish({ content }) {
       convex.mutation(api.messages.create, {
         chatId: chatId as Id<"chats">,

@@ -16,9 +16,7 @@ function Chat(props: Props) {
   const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView<
     HTMLDivElement,
     HTMLDivElement
-  >({
-    offset: 60,
-  });
+  >({});
   return (
     <div className="h-full">
       <FloatingSearchBox ref={searchbox.ref} submit={submit} />
@@ -36,7 +34,7 @@ function Chat(props: Props) {
                 height: `calc(100dvh - ${(searchbox.height || 60) + 60}px)`,
               }}
             >
-              <div className="m-auto max-w-[800px] w-[95vw]">
+              <div className="m-auto max-w-[800px] w-[95vw] h-full">
                 <Messages
                   scrollIntoView={scrollIntoView}
                   lastMessageRef={targetRef}

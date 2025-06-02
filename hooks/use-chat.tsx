@@ -26,9 +26,18 @@ function useChat(props: Props) {
     chatId,
   });
 
+  const fetchInitialMessageResponse = async () => {
+    if (!messages) return;
+    await append(messages[0] as any);
+  };
+
   useEffect(() => {
     if (!messages) return;
     setLoading(false);
+
+    if (messages.length == 1) {
+      fetchInitialMessageResponse();
+    }
 
     const newUIMessageState: UIMessage[] = [];
     for (const message of messages) {
