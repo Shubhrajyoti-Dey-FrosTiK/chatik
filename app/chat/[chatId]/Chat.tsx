@@ -1,6 +1,6 @@
 "use client";
 import useChat from "@/hooks/use-chat";
-import { useElementSize } from "@mantine/hooks";
+import { useElementSize, useScrollIntoView } from "@mantine/hooks";
 import { MessageLoading } from "./Message";
 import Messages from "./Messages";
 import { FloatingSearchBox } from "./SearchBox";
@@ -13,7 +13,12 @@ function Chat(props: Props) {
   const { chatId } = props;
   const { uiMessages, submit, loading } = useChat({ chatId });
   const searchbox = useElementSize();
-
+  const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView<
+    HTMLDivElement,
+    HTMLDivElement
+  >({
+    offset: 60,
+  });
   return (
     <div className="h-full">
       <FloatingSearchBox ref={searchbox.ref} submit={submit} />
@@ -25,13 +30,18 @@ function Chat(props: Props) {
         <div>
           {uiMessages?.length ? (
             <div
+              ref={scrollableRef}
               className="overflow-scroll"
               style={{
                 height: `calc(100dvh - ${(searchbox.height || 60) + 60}px)`,
               }}
             >
               <div className="m-auto max-w-[800px] w-[95vw]">
-                <Messages messages={uiMessages} />
+                <Messages
+                  scrollIntoView={scrollIntoView}
+                  lastMessageRef={targetRef}
+                  messages={uiMessages}
+                />
               </div>
             </div>
           ) : (
