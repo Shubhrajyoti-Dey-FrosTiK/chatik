@@ -22,7 +22,12 @@ export async function POST(request: NextRequest) {
   const { chatId, messages }: NewMessageInChatRequest = await request.json();
 
   const stream = await streamText({
-    system: "Answer the questions of the user very elaboratively",
+    system: `
+    Answer the questions of the user very elaboratively
+
+    Note:
+    Use mathjax syntax to denote mathematical equations
+    `,
     model: google("gemini-2.0-flash-001"),
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream(),

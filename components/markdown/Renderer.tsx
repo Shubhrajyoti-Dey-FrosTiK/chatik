@@ -1,5 +1,7 @@
 import Markdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import Code from "./components/code/Code";
 
 export interface Props {
@@ -14,6 +16,24 @@ function Renderer(props: Props) {
     <div className="w-full">
       <Markdown
         components={{
+          // // eslint-disable-next-line
+          // // @ts-ignore
+          // inlineMath: ({ value }) => {
+          //   console.log(value);
+          //   return (
+          //     <MathJaxContext>
+          //       <MathJax inline>{value}</MathJax>
+          //     </MathJaxContext>
+          //   );
+          // },
+          // math: ({ value }) => {
+          //   console.log(value);
+          //   return (
+          //     <MathJaxContext>
+          //       <MathJax>{value}</MathJax>
+          //     </MathJaxContext>
+          //   );
+          // },
           // eslint-disable-next-line
           code({ children, className }: any) {
             const isInline = className ? false : true;
@@ -27,7 +47,8 @@ function Renderer(props: Props) {
             );
           },
         }}
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
       >
         {markdown}
       </Markdown>
