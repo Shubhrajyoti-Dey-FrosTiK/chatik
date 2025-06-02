@@ -1,17 +1,15 @@
-import React from "react";
-import SearchBox from "./SearchBox";
+import Chat from "./Chat";
 
-// interface Props {
-//   params: Promise<{ chatId: string }>;
-// }
+interface Props {
+  params: Promise<{ chatId: string }>;
+}
 
-async function Page() {
-  // props: Props
-  // const { chatId } = await props.params;
+async function Page(props: Props) {
+  const { chatId } = await props.params;
 
   return (
-    <div className="relative w-full h-full">
-      <SearchBox />
+    <div className="relative min-h-full">
+      <Chat chatId={chatId} />
     </div>
   );
 }

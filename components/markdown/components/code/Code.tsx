@@ -1,46 +1,76 @@
 "use client";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useClipboard } from "@mantine/hooks";
 import { Check, Copy } from "lucide-react";
+import { memo, useMemo } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 interface Props {
   code: string;
   language: string;
+  isInline: boolean;
 }
 
-function Code(props: Props) {
-  const { code, language } = props;
-  const clipboard = useClipboard({ timeout: 2000 });
+const Code = memo(
+  (props: Props) => {
+    const { code, language, isInline } = props;
+    const highlightedCode = useMemo(() => code, [code]);
+    const clipboard = useClipboard({ timeout: 2000 });
 
-  return (
-    <div>
-      <div className="[&>*]:!m-0">
-        <div className="flex justify-between items-center p-2 bg-gray-700">
-          <p>{language}</p>
-          {clipboard.copied ? (
-            <Check color="green" />
-          ) : (
-            <Copy
-              size={20}
-              onClick={() => {
-                clipboard.copy(code);
-              }}
-            />
-          )}
-        </div>
-        <SyntaxHighlighter
-          customStyle={{
-            width: "100%",
+    if (isInline) {
+      return (
+        <span
+          style={{
+            background: "#2d2d2d",
+            color: "#f8f8f2",
+            padding: "0.2em 0.4em",
+            borderRadius: "4px",
+            fontFamily: "monospace",
+            fontSize: "0.95em",
+            whiteSpace: "pre-wrap",
           }}
-          language={language}
-          style={dracula}
         >
-          {code}
-        </SyntaxHighlighter>
+          {highlightedCode}
+        </span>
+      );
+    }
+    return (
+      <div>
+        <div className="[&>*]:!m-0">
+          <div className="flex justify-between items-center p-2 bg-gray-700">
+            <p>{language}</p>
+            {clipboard.copied ? (
+              <Check color="green" />
+            ) : (
+              <Copy
+                size={20}
+                onClick={() => {
+                  clipboard.copy(code);
+                }}
+              />
+            )}
+          </div>
+          <SyntaxHighlighter
+            customStyle={{
+              width: "100%",
+            }}
+            language={language}
+            style={dracula}
+          >
+            {highlightedCode}
+          </SyntaxHighlighter>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.code === nextProps.code &&
+      prevProps.language === nextProps.language
+    );
+  },
+);
+
+Code.displayName = "Code";
 
 export default Code;

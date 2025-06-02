@@ -81,7 +81,6 @@ export function LoginForm({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              console.log(e.target);
               handleLoginWithEmailPassword();
             }}
           >

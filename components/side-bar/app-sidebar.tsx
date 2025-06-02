@@ -1,14 +1,11 @@
 "use client";
 
-import * as React from "react";
 import {
-  AudioWaveform,
   BookOpen,
-  Bot,
-  Command,
   Frame,
-  GalleryVerticalEnd,
+  GitBranchPlus,
   Map,
+  MessageCircle,
   PieChart,
   Settings2,
   SquareTerminal,
@@ -25,29 +22,16 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { api } from "@/convex/_generated/api";
 import { Session, User } from "better-auth";
+import { useQuery } from "convex/react";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
+      name: "ChaTiK",
+      logo: GitBranchPlus,
       plan: "Free",
     },
   ],
@@ -72,25 +56,7 @@ const data = {
         },
       ],
     },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
+    ,
     {
       title: "Documentation",
       url: "#",
@@ -164,13 +130,31 @@ export interface Props {
 
 export function AppSidebar(props: Props) {
   const { user } = props;
+  const chats = useQuery(api.chats.getByUser, {
+    user: props.user.id,
+  });
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain
+          items={[
+            {
+              title: "Chats",
+              url: "/chat",
+              isActive: true,
+              icon: MessageCircle,
+              items: chats?.map((chat) => {
+                return {
+                  title: chat.name,
+                  url: `/chat/${chat._id}`,
+                };
+              }),
+            },
+          ]}
+        />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

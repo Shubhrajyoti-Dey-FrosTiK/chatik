@@ -9,6 +9,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { ConvexClientProvider } from "./convex";
 import "./globals.css";
+import QueryProvider from "./QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,21 +44,25 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MantineProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Toaster />
-            {!sessionInstance ? (
-              <ConvexClientProvider>{children}</ConvexClientProvider>
-            ) : (
-              <SidebarWrapper
-                session={sessionInstance.session}
-                user={sessionInstance.user}
-              >
-                <ConvexClientProvider>{children}</ConvexClientProvider>
-              </SidebarWrapper>
-            )}
-          </ThemeProvider>
-        </MantineProvider>
+        <QueryProvider>
+          <MantineProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <Toaster />
+              <ConvexClientProvider>
+                {!sessionInstance ? (
+                  children
+                ) : (
+                  <SidebarWrapper
+                    session={sessionInstance.session}
+                    user={sessionInstance.user}
+                  >
+                    {children}
+                  </SidebarWrapper>
+                )}
+              </ConvexClientProvider>
+            </ThemeProvider>
+          </MantineProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,43 +1,25 @@
 "use client";
 
 import LandingPage from "@/components/landing-page/landing-page";
-import Markdown from "@/components/markdown/Markdown";
 import Spinner from "@/components/spinner/spinner";
-import { Button } from "@/components/ui/button";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { authClient } from "@/lib/authClient";
-import { useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { api } from "../convex/_generated/api";
+import SearchBox, { SearchBoxData } from "./chat/[chatId]/SearchBox";
 
 export default function Home() {
-  const tasks = useQuery(api.tasks.get);
   const { data: session, isPending } = authClient.useSession();
-
+  const createChat = useMutation(api.chats.create);
   const router = useRouter();
 
-  const handleSignIn = async () => {
-    const response = await authClient.signIn.email({
-      email: "tosumandey77@gmail.com",
-      password: "12345678",
+  const createNewChat = async (data: SearchBoxData) => {
+    const chat = await createChat({
+      input: data.text,
+      user: (session?.user.id ?? "") as Id<"user">,
     });
-
-    if (response.error) {
-      const response = await authClient.signUp.email({
-        name: "Suman Dey",
-        email: "tosumandey77@gmail.com",
-        password: "12345678",
-      });
-
-      if (response.error) {
-        toast(response.error.message);
-        return;
-      }
-    }
-
-    toast("Signed in successfully");
-    router.refresh();
-    console.log(response);
+    router.push(`/chat/${chat}`);
   };
 
   return (
@@ -47,16 +29,13 @@ export default function Home() {
           <Spinner />
         </div>
       ) : (
-        <div className="w-full">
+        <div className="w-full h-full">
           {session ? (
-            <div>
-              {tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}
-              <Button onClick={handleSignIn}>Sign In </Button>
-              <Markdown
-                markdown={
-                  "```js\nvar foo = function (bar) {\nreturn bar++;\n};\n\nconsole.log(foo(5));\n```"
-                }
-              />
+            <div className="h-full w-full flex items-center">
+              <div className="max-w-[800px] w-[95vw] pb-[200px] m-auto text-center">
+                <p className="text-5xl my-10 font-bold ">ChaTiK</p>
+                <SearchBox submit={createNewChat} />
+              </div>
             </div>
           ) : (
             <LandingPage />

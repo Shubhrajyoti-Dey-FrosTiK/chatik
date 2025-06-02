@@ -1,13 +1,14 @@
 import { ClipLoader } from "react-spinners";
+import { LoaderSizeProps } from "react-spinners/helpers/props";
 
-function Spinner() {
+function Spinner(props: LoaderSizeProps) {
   return (
     <div>
       <div className="dark:hidden">
-        <ClipLoader color="white" />
+        <ClipLoader {...props} color="white" />
       </div>
       <div className="hidden dark:block">
-        <ClipLoader color="white" />
+        <ClipLoader {...props} color="white" />
       </div>
     </div>
   );

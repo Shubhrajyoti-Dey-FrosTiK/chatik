@@ -1,9 +1,10 @@
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { getMarkdownComponents } from "./components/components";
+import Code from "./components/code/Code";
 
 export interface Props {
   markdown: string;
+  id: string;
 }
 
 function Renderer(props: Props) {
@@ -12,7 +13,20 @@ function Renderer(props: Props) {
   return (
     <div className="w-full">
       <Markdown
-        components={getMarkdownComponents()}
+        components={{
+          // eslint-disable-next-line
+          code({ children, className }: any) {
+            const isInline = className ? false : true;
+            const language = /language-(\w+)/.exec(className || "");
+            return (
+              <Code
+                code={String(children).replace(/\n$/, "")}
+                language={language ? language[1] : ""}
+                isInline={isInline}
+              />
+            );
+          },
+        }}
         remarkPlugins={[remarkGfm]}
       >
         {markdown}

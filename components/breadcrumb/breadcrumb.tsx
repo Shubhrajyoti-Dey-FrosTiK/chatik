@@ -20,7 +20,8 @@ function Breadcrumb() {
     <BreadcrumbComponent>
       <BreadcrumbList>
         {parts.map((part, partIdx) => {
-          const link = parts.slice(0, partIdx + 1).join("/");
+          let link = parts.slice(0, partIdx + 1).join("/");
+          if (link == "") link = "/";
           return (
             <div
               key={`BreadcrumbPart_${partIdx}`}
