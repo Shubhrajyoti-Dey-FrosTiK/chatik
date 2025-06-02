@@ -1,12 +1,11 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { marked } from "marked";
 import dynamic from "next/dynamic";
-import { memo, useMemo } from "react";
+import { memo, Suspense, useMemo } from "react";
 import { Props } from "./Renderer";
 
 const Renderer = dynamic(() => import("@/components/markdown/Renderer"), {
   ssr: false,
-  loading: () => <Skeleton className="h-10 py-2 w-full" />,
+  // loading: () => <Skeleton className="h-10 py-2 w-full" />,
 });
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
@@ -16,7 +15,11 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 
 const MemoizedMarkdownBlock = memo(
   (props: Props) => {
-    return <Renderer {...props} />;
+    return (
+      <Suspense fallback={<div>{props.markdown}</div>}>
+        <Renderer {...props} />
+      </Suspense>
+    );
   },
   (prevProps, nextProps) => {
     if (prevProps.markdown !== nextProps.markdown) return false;

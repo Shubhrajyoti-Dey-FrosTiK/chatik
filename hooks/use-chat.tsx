@@ -1,9 +1,12 @@
 import { SearchBoxData } from "@/app/chat/[chatId]/SearchBox";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { MessageSchema } from "@/convex/schema";
+import { dexie } from "@/lib/dexie";
 import { useChat as useAISDKChat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
 import { useMutation, useQuery } from "convex/react";
+import { Infer } from "convex/values";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 
@@ -26,6 +29,23 @@ function useChat(props: Props) {
     chatId,
   });
 
+  const loadCachedMessages = async () => {
+    try {
+      const messages = await dexie.messages
+        .where("chatId")
+        .equals(chatId)
+        .toArray();
+      setMessages(messages as UIMessage[]);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadCachedMessages();
+  }, []);
+
   const fetchInitialMessageResponse = async () => {
     if (!messages) return;
     await append(messages[0] as any);
@@ -34,22 +54,17 @@ function useChat(props: Props) {
   useEffect(() => {
     if (!messages) return;
     setLoading(false);
-
     if (messages.length == 1) {
       fetchInitialMessageResponse();
     }
-
     const newUIMessageState: UIMessage[] = [];
     for (const message of messages) {
-      const uiMessage = uiMessages.filter((uim) => uim.id == message.id);
-      if (uiMessage.length) {
-        newUIMessageState.push(...uiMessage);
-      } else {
-        newUIMessageState.push(message as UIMessage);
-      }
+      newUIMessageState.push(message as UIMessage);
     }
-
     setMessages(newUIMessageState);
+    dexie.messages.bulkAdd(
+      newUIMessageState as Array<Infer<typeof MessageSchema>>,
+    );
   }, [messages]);
 
   const submit = async (data: SearchBoxData) => {

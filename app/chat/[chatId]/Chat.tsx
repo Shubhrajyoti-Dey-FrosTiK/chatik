@@ -5,7 +5,6 @@ import {
   useInViewport,
   useScrollIntoView,
 } from "@mantine/hooks";
-import { useEffect } from "react";
 import { MessageLoading } from "./Message";
 import Messages from "./Messages";
 import { FloatingSearchBox } from "./SearchBox";
@@ -24,14 +23,6 @@ function Chat(props: Props) {
   >({});
   const { ref: bottomElementRef, inViewport: hasBottomReached } =
     useInViewport<HTMLDivElement>();
-
-  useEffect(() => {
-    if (!scrollableRef.current) return;
-
-    window.addEventListener("scroll", (event) => {
-      console.log(event);
-    });
-  }, [scrollableRef]);
 
   return (
     <div className="h-full">
