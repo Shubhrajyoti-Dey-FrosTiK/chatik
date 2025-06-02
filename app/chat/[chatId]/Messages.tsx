@@ -6,21 +6,14 @@ interface Props {
   messages: Array<UIMessage>;
   lastMessageRef: RefObject<HTMLDivElement>;
   scrollIntoView: (params: { alignment: "center" | "start" | "end" }) => void;
+  bottomElementRef: (node: HTMLDivElement) => void;
 }
 
 function Messages(props: Props) {
-  const { messages, lastMessageRef, scrollIntoView } = props;
-  const [lastUserMessageIdx, setLastUserMessageIdx] = useState<number>(0);
+  const { messages, lastMessageRef, scrollIntoView, bottomElementRef } = props;
   const [lastMessageHeight, setLastMessageHeight] = useState<number>(50);
 
   const handleScroll = async () => {
-    let newLastUserMessageIdx = 0;
-    messages.forEach((message, idx) => {
-      if (message.role == "user") newLastUserMessageIdx = idx;
-    });
-
-    setLastUserMessageIdx(newLastUserMessageIdx);
-    await new Promise((resolve) => setTimeout(resolve, 50));
     scrollIntoView({
       alignment: "start",
     });
@@ -44,12 +37,12 @@ function Messages(props: Props) {
           midx == messages.length - 1 && message.role == "assistant";
         return (
           <div
-            ref={midx == lastUserMessageIdx ? lastMessageRef : null}
+            // ref={midx == lastUserMessageIdx ? lastMessageRef : null}
             key={`Message_${message.id}`}
-            className={`w-full my-10`}
+            className={`w-full ${message.role == "assistant" && "pb-10 pt-2"}`}
             style={{
               minHeight: addExtraPadding
-                ? `calc(100% - ${lastMessageHeight + 30}px)`
+                ? `calc(100% - ${lastMessageHeight + 50}px)`
                 : "auto",
             }}
           >
@@ -75,12 +68,15 @@ function Messages(props: Props) {
           messages[messages.length - 1].parts.length == 0) && (
           <div
             style={{
-              minHeight: `calc(100% - ${lastMessageHeight + 30}px)`,
+              minHeight: `calc(100% - ${lastMessageHeight + 50}px)`,
             }}
           >
             <MessageLoading />
           </div>
         )}
+      <div ref={lastMessageRef}>
+        <div ref={bottomElementRef}></div>
+      </div>
     </div>
   );
 }

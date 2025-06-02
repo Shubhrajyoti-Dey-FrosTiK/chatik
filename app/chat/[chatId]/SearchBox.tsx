@@ -5,7 +5,7 @@ import {
 } from "@/components/input/textarea/auto-size-textarea";
 import Spinner from "@/components/spinner/spinner";
 import { getHotkeyHandler, useElementSize } from "@mantine/hooks";
-import { SendHorizontalIcon } from "lucide-react";
+import { ArrowDown, SendHorizontalIcon } from "lucide-react";
 import { RefObject, useRef, useState } from "react";
 
 export interface SearchBoxData {
@@ -15,6 +15,9 @@ export interface SearchBoxData {
 export interface SearchBoxProps {
   submit: (searchBoxData: SearchBoxData) => Promise<void>;
   ref?: RefObject<HTMLDivElement>;
+  goToBottom?: {
+    scrollIntoView: (params: { alignment: "center" | "start" | "end" }) => void;
+  };
 }
 
 export function FloatingSearchBox(props: SearchBoxProps) {
@@ -52,41 +55,55 @@ function SearchBox(props: SearchBoxProps) {
   };
 
   return (
-    <div
-      ref={props.ref}
-      className="relative w-full"
-      onClick={() => {
-        searchBoxRef?.current?.textArea.focus();
-      }}
-    >
+    <div>
+      {props.goToBottom && (
+        <div className="flex w-full justify-center my-2 relative">
+          <ArrowDown
+            className="border-1"
+            onClick={() => {
+              props.goToBottom?.scrollIntoView({
+                alignment: "end",
+              });
+            }}
+          />
+        </div>
+      )}
       <div
-        className={`bg-zinc-800 p-5 rounded-md w-full relative z-20 ${searchBoxInFocus ? "border-1 border-primary" : ""}`}
+        ref={props.ref}
+        className="relative w-full"
+        onClick={() => {
+          searchBoxRef?.current?.textArea.focus();
+        }}
       >
-        <AutosizeTextarea
-          ref={searchBoxRef}
-          maxHeight={200}
-          onFocusCapture={(e) => {
-            e.stopPropagation();
-            setSearchBoxInFocus(true);
-          }}
-          onBlur={() => {
-            setSearchBoxInFocus(false);
-          }}
-          value={searchBoxData.text}
-          onChange={(e) => {
-            setSearchBoxData({ ...searchBoxData, text: e.target.value });
-          }}
-          onKeyDown={getHotkeyHandler([["Enter", submit]])}
-          placeholder="Search anything..."
-          className="border-none bg-transparent resize-none focus:outline-none"
-        />
-        <div className="flex items-center justify-between">
-          <div></div>
-          {loading ? (
-            <Spinner size={20} />
-          ) : (
-            <SendHorizontalIcon onClick={submit} className="cursor-pointer" />
-          )}
+        <div
+          className={`bg-zinc-800 p-5 rounded-md w-full relative z-20 ${searchBoxInFocus ? "border-1 border-primary" : ""}`}
+        >
+          <AutosizeTextarea
+            ref={searchBoxRef}
+            maxHeight={200}
+            onFocusCapture={(e) => {
+              e.stopPropagation();
+              setSearchBoxInFocus(true);
+            }}
+            onBlur={() => {
+              setSearchBoxInFocus(false);
+            }}
+            value={searchBoxData.text}
+            onChange={(e) => {
+              setSearchBoxData({ ...searchBoxData, text: e.target.value });
+            }}
+            onKeyDown={getHotkeyHandler([["Enter", submit]])}
+            placeholder="Search anything..."
+            className="border-none bg-transparent resize-none focus:outline-none text-md"
+          />
+          <div className="flex items-center justify-between">
+            <div></div>
+            {loading ? (
+              <Spinner size={20} />
+            ) : (
+              <SendHorizontalIcon onClick={submit} className="cursor-pointer" />
+            )}
+          </div>
         </div>
       </div>
     </div>

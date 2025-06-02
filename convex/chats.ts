@@ -1,8 +1,6 @@
-import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { v4 } from "uuid";
-import { UIMessage } from "ai";
-import schema from "./schema";
+import { mutation, query } from "./_generated/server";
 
 export const getByUser = query({
   args: { user: v.string() },
@@ -10,6 +8,7 @@ export const getByUser = query({
     return await ctx.db
       .query("chats")
       .filter((q) => q.eq(q.field("user"), args.user))
+      .order("desc")
       .collect();
   },
 });

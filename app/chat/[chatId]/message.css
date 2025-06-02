@@ -12,9 +12,12 @@
 }
 
 .message > div {
-  margin-top: 10px;
-  margin-bottom: 10px;
   line-height: 1.5;
   font-size: 1rem;
   letter-spacing: normal;
+}
+
+.message.assistant > div {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

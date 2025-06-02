@@ -23,7 +23,7 @@ function Message(props: Props) {
   const { message } = props;
 
   return (
-    <div className="leading-5 text-lg message">
+    <div className={`leading-5 text-lg message ${message.role}`}>
       {message.parts.map((part, partIdx) => {
         switch (part.type) {
           case "file":
