@@ -8,6 +8,7 @@ import { authClient } from "@/lib/authClient";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import SearchBox, { SearchBoxData } from "./chat/[chatId]/SearchBox";
+import { dexie } from "@/lib/dexie";
 
 export default function Home() {
   const { data: session, isPending } = authClient.useSession();
@@ -15,11 +16,21 @@ export default function Home() {
   const router = useRouter();
 
   const createNewChat = async (data: SearchBoxData) => {
-    const chat = await createChat({
+    const chatId = await createChat({
       input: data.text,
       user: (session?.user.id ?? "") as Id<"user">,
     });
-    router.push(`/chat/${chat}`);
+    await dexie.messages.add({
+      chatId: chatId as Id<"chats">,
+      role: "user",
+      parts: [
+        {
+          type: "text",
+          text: data.text,
+        },
+      ],
+    });
+    router.push(`/chat/${chatId}`);
   };
 
   return (

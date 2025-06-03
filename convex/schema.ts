@@ -35,6 +35,28 @@ export const MessageSchema = v.object({
       }),
     ),
   ),
+  sources: v.optional(
+    v.array(
+      v.object({
+        type: v.literal("source"),
+        sourceType: v.literal("url"),
+        id: v.string(),
+        url: v.string(),
+        title: v.optional(v.string()),
+        providerMetadata: v.optional(v.any()),
+      }),
+    ),
+  ),
+  usage: v.optional(
+    v.object({
+      inputTokens: v.optional(v.number()),
+      outputTokens: v.optional(v.number()),
+      totalTokens: v.optional(v.number()),
+      reasoningTokens: v.optional(v.number()),
+      cachedInputTokens: v.optional(v.number()),
+    }),
+  ),
+  time: v.optional(v.number()),
 });
 
 const schema = defineSchema({

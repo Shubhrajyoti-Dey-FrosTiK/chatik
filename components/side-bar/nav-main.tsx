@@ -55,7 +55,7 @@ export function NavMain({
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubItem key={subItem.url}>
                       <SidebarMenuSubButton asChild>
                         <Link href={subItem.url}>
                           <span>{subItem.title}</span>

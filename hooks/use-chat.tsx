@@ -35,6 +35,10 @@ function useChat(props: Props) {
         .where("chatId")
         .equals(chatId)
         .toArray();
+
+      // eslint-disable-next-line
+      // @ts-ignore
+      messages.sort((a, b) => a._creationTime - b._creationTime);
       setMessages(messages as UIMessage[]);
       setLoading(false);
     } catch (error) {
@@ -51,20 +55,19 @@ function useChat(props: Props) {
     await append(messages[0] as any);
   };
 
-  useEffect(() => {
+  const handleMessageUpdates = async () => {
     if (!messages) return;
     setLoading(false);
     if (messages.length == 1) {
       fetchInitialMessageResponse();
     }
-    const newUIMessageState: UIMessage[] = [];
-    for (const message of messages) {
-      newUIMessageState.push(message as UIMessage);
-    }
-    setMessages(newUIMessageState);
-    dexie.messages.bulkAdd(
-      newUIMessageState as Array<Infer<typeof MessageSchema>>,
-    );
+
+    setMessages(messages as UIMessage[]);
+    await dexie.messages.bulkAdd(messages);
+  };
+
+  useEffect(() => {
+    handleMessageUpdates();
   }, [messages]);
 
   const submit = async (data: SearchBoxData) => {
@@ -90,7 +93,13 @@ function useChat(props: Props) {
     ]);
   };
 
-  return { uiMessages, submit, loading };
+  console.log(uiMessages);
+
+  return {
+    uiMessages: uiMessages as any[] as Infer<typeof MessageSchema>[],
+    submit,
+    loading,
+  };
 }
 
 export default useChat;

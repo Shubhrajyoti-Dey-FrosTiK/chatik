@@ -1,9 +1,10 @@
-import { UIMessage } from "ai";
+import { MessageSchema } from "@/convex/schema";
+import { Infer } from "convex/values";
 import { RefObject, useEffect, useState } from "react";
-import Message, { MessageLoading } from "./Message";
+import { Message, MessageLoading } from "./Message";
 
 interface Props {
-  messages: Array<UIMessage>;
+  messages: Array<Infer<typeof MessageSchema>>;
   lastMessageRef: RefObject<HTMLDivElement>;
   scrollIntoView: (params: { alignment: "center" | "start" | "end" }) => void;
   bottomElementRef: (node: HTMLDivElement) => void;
@@ -49,14 +50,14 @@ function Messages(props: Props) {
             {message.role == "user" && (
               <div className="flex w-full justify-end">
                 <div className="bg-gray-800 max-w-[80%] px-4 py-2 rounded-sm">
-                  <Message message={message as UIMessage} />
+                  <Message message={message} />
                 </div>
               </div>
             )}
 
             {message.role == "assistant" && (
               <div>
-                <Message message={message as UIMessage} />
+                <Message message={message} />
               </div>
             )}
           </div>

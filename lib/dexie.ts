@@ -12,7 +12,7 @@ const dexie = new Dexie("MessagesByChatIdDB") as Dexie & {
 
 // Schema declaration:
 dexie.version(1).stores({
-  messages: "chatId",
+  messages: "++id, chatId",
 });
 
 export { dexie };

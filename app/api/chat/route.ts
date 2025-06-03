@@ -20,6 +20,7 @@ export interface NewMessageInChatRequest {
 
 export async function POST(request: NextRequest) {
   const { chatId, messages }: NewMessageInChatRequest = await request.json();
+  const start = Date.now();
 
   const stream = await streamText({
     system: `
@@ -31,14 +32,18 @@ export async function POST(request: NextRequest) {
     model: google("gemini-2.0-flash-001"),
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream(),
-    maxOutputTokens: 1000,
-    onFinish({ content }) {
+    onFinish({ content, sources, usage }) {
+      const end = Date.now();
+      const timeSpentMs = end - start;
       convex.mutation(api.messages.create, {
         chatId: chatId as Id<"chats">,
         id: v4(),
         // eslint-disable-next-line
         parts: content as any,
         role: "assistant",
+        sources,
+        usage,
+        time: timeSpentMs,
       });
     },
   });
