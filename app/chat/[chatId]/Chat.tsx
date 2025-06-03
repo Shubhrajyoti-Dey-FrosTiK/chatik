@@ -20,7 +20,9 @@ function Chat(props: Props) {
   const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView<
     HTMLDivElement,
     HTMLDivElement
-  >({});
+  >({
+    duration: 400,
+  });
   const { ref: bottomElementRef, inViewport: hasBottomReached } =
     useInViewport<HTMLDivElement>();
 

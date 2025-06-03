@@ -62,7 +62,7 @@ function SearchBox(props: SearchBoxProps) {
             className="bg-black p-2 rounded-full border-1 cursor-pointer"
             onClick={() => {
               props.goToBottom?.scrollIntoView({
-                alignment: "end",
+                alignment: "start",
               });
             }}
           >

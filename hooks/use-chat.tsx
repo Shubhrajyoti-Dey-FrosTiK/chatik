@@ -93,8 +93,6 @@ function useChat(props: Props) {
     ]);
   };
 
-  console.log(uiMessages);
-
   return {
     uiMessages: uiMessages as any[] as Infer<typeof MessageSchema>[],
     submit,

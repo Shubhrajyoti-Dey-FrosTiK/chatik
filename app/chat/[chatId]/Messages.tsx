@@ -15,6 +15,7 @@ function Messages(props: Props) {
   const [lastMessageHeight, setLastMessageHeight] = useState<number>(50);
 
   const handleScroll = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
     scrollIntoView({
       alignment: "start",
     });
