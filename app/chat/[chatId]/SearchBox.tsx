@@ -4,7 +4,7 @@ import {
   AutosizeTextAreaRef,
 } from "@/components/input/textarea/auto-size-textarea";
 import Spinner from "@/components/spinner/spinner";
-import { getHotkeyHandler, useElementSize } from "@mantine/hooks";
+import { getHotkeyHandler, useElementSize, useHotkeys } from "@mantine/hooks";
 import { ArrowDown, SendHorizontalIcon } from "lucide-react";
 import { RefObject, useRef, useState } from "react";
 
@@ -43,6 +43,16 @@ function SearchBox(props: SearchBoxProps) {
   });
   const searchBoxRef = useRef<AutosizeTextAreaRef>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  useHotkeys([
+    [
+      "Tab",
+      () => {
+        if (document.activeElement !== searchBoxRef.current?.textArea) {
+          searchBoxRef.current?.textArea.focus();
+        }
+      },
+    ],
+  ]);
 
   const submit = async () => {
     if (loading) return;

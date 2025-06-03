@@ -25,11 +25,12 @@ export async function POST(request: NextRequest) {
   const stream = await streamText({
     system: `
     Answer the questions of the user very elaboratively
-
+    Try not to go above 1000 words
     Note:
     Use mathjax syntax to denote mathematical equations
     `,
     model: google("gemini-2.0-flash-001"),
+    maxOutputTokens: 1200,
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream(),
     onFinish({ content, sources, usage }) {
