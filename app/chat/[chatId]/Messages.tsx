@@ -32,7 +32,7 @@ function Messages(props: Props) {
   }, [messages.length]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative z-0">
       {messages.map((message, midx) => {
         const addExtraPadding =
           midx == messages.length - 1 && message.role == "assistant";

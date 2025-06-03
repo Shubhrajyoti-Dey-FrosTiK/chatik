@@ -57,15 +57,17 @@ function SearchBox(props: SearchBoxProps) {
   return (
     <div>
       {props.goToBottom && (
-        <div className="flex w-full justify-center my-2 relative">
-          <ArrowDown
-            className="border-1"
+        <div className="flex w-full justify-center my-2 relative z-10">
+          <span
+            className="bg-black p-2 rounded-full border-1 cursor-pointer"
             onClick={() => {
               props.goToBottom?.scrollIntoView({
                 alignment: "end",
               });
             }}
-          />
+          >
+            <ArrowDown />
+          </span>
         </div>
       )}
       <div
