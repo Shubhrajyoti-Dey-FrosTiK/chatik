@@ -41,7 +41,7 @@ function Messages(props: Props) {
           <div
             // ref={midx == lastUserMessageIdx ? lastMessageRef : null}
             key={`Message_${message.id}`}
-            className={`w-full ${message.role == "assistant" && "pb-10 pt-2"}`}
+            className={`w-full group ${message.role == "assistant" && "pb-10 pt-2"}`}
             style={{
               minHeight: addExtraPadding
                 ? `calc(100% - ${lastMessageHeight + 50}px)`

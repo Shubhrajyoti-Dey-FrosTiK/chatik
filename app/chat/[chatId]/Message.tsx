@@ -1,10 +1,14 @@
-import { MemoizedMarkdown } from "@/components/markdown/Markdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSchema } from "@/convex/schema";
 import { Infer } from "convex/values";
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 import { MessageTools } from "./MessageTools";
 import "./message.css";
+import dynamic from "next/dynamic";
+
+const MemoizedMarkdown = dynamic(() =>
+  import("@/components/markdown/Markdown").then((mod) => mod.MemoizedMarkdown),
+);
 
 export function MessageLoading() {
   return (
@@ -26,7 +30,7 @@ export function Message(props: MessageProps) {
   const messageRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="group relative">
+    <div className="relative">
       <MessageTools {...props} messageRef={messageRef} />
       <div
         className={`leading-5 text-lg message ${message.role}`}
@@ -39,12 +43,17 @@ export function Message(props: MessageProps) {
               break;
             case "text":
               return (
-                <MemoizedMarkdown
-                  id={message.id}
-                  key={`${message.id}_${partIdx}`}
-                  markdown={part.text}
-                />
-                // JSON.stringify(message)
+                <Suspense
+                  fallback={
+                    <span className="message-suspense">{part.text}</span>
+                  }
+                >
+                  <MemoizedMarkdown
+                    id={message.id}
+                    key={`${message.id}_${partIdx}`}
+                    markdown={part.text}
+                  />
+                </Suspense>
               );
             case "reasoning":
               return (

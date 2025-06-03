@@ -39,7 +39,10 @@ function useChat(props: Props) {
       // eslint-disable-next-line
       // @ts-ignore
       messages.sort((a, b) => a._creationTime - b._creationTime);
-      setMessages(messages as UIMessage[]);
+      setMessages((prev) => {
+        if (prev.length) return prev;
+        return messages as UIMessage[];
+      });
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -59,11 +62,11 @@ function useChat(props: Props) {
     if (!messages) return;
     setLoading(false);
     if (messages.length == 1) {
+      dexie.messages.clear();
       fetchInitialMessageResponse();
     }
-
+    dexie.messages.bulkAdd(messages);
     setMessages(messages as UIMessage[]);
-    await dexie.messages.bulkAdd(messages);
   };
 
   useEffect(() => {
