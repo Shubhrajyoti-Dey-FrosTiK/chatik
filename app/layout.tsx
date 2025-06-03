@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { ConvexClientProvider } from "./convex";
 import "./globals.css";
 import QueryProvider from "./QueryProvider";
+import { KeyboardControl } from "./keyboard-control";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,12 +53,14 @@ export default async function RootLayout({
                 {!sessionInstance ? (
                   children
                 ) : (
-                  <SidebarWrapper
-                    session={sessionInstance.session}
-                    user={sessionInstance.user}
-                  >
-                    {children}
-                  </SidebarWrapper>
+                  <KeyboardControl>
+                    <SidebarWrapper
+                      session={sessionInstance.session}
+                      user={sessionInstance.user}
+                    >
+                      {children}
+                    </SidebarWrapper>
+                  </KeyboardControl>
                 )}
               </ConvexClientProvider>
             </ThemeProvider>

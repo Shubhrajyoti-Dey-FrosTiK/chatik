@@ -57,7 +57,7 @@ function Chat(props: Props) {
               <div className="m-auto max-w-[800px] w-[95vw] h-full">
                 <Messages
                   scrollIntoView={scrollIntoView}
-                  lastMessageRef={targetRef}
+                  scrollRef={targetRef}
                   messages={uiMessages}
                   bottomElementRef={bottomElementRef}
                 />

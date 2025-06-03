@@ -2,17 +2,19 @@ import { MessageSchema } from "@/convex/schema";
 import { Infer } from "convex/values";
 import { RefObject, useEffect, useState } from "react";
 import { Message, MessageLoading } from "./Message";
+import { useElementSize } from "@mantine/hooks";
 
 interface Props {
   messages: Array<Infer<typeof MessageSchema>>;
-  lastMessageRef: RefObject<HTMLDivElement>;
+  scrollRef: RefObject<HTMLDivElement>;
   scrollIntoView: (params: { alignment: "center" | "start" | "end" }) => void;
   bottomElementRef: (node: HTMLDivElement) => void;
 }
 
 function Messages(props: Props) {
-  const { messages, lastMessageRef, scrollIntoView, bottomElementRef } = props;
-  const [lastMessageHeight, setLastMessageHeight] = useState<number>(50);
+  const { messages, scrollRef, scrollIntoView, bottomElementRef } = props;
+  const [lastUserMessageIdx, setLastUserMessageIdx] = useState<number>(0);
+  const lastUserMessage = useElementSize<HTMLDivElement>();
 
   const handleScroll = async () => {
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -22,13 +24,11 @@ function Messages(props: Props) {
   };
 
   useEffect(() => {
-    if (lastMessageRef.current) {
-      const height = lastMessageRef.current.offsetHeight;
-      setLastMessageHeight(height);
-    }
-  }, [lastMessageRef.current]);
-
-  useEffect(() => {
+    let lastUserMessageIdx = 0;
+    messages.forEach((message, midx) => {
+      if (message.role == "user") lastUserMessageIdx = midx;
+    });
+    setLastUserMessageIdx(lastUserMessageIdx);
     handleScroll();
   }, [messages.length]);
 
@@ -39,12 +39,12 @@ function Messages(props: Props) {
           midx == messages.length - 1 && message.role == "assistant";
         return (
           <div
-            // ref={midx == lastUserMessageIdx ? lastMessageRef : null}
+            ref={midx == lastUserMessageIdx ? lastUserMessage.ref : null}
             key={`Message_${message.id}`}
             className={`w-full group ${message.role == "assistant" && "pb-10 pt-2"}`}
             style={{
               minHeight: addExtraPadding
-                ? `calc(100% - ${lastMessageHeight + 50}px)`
+                ? `calc(100% - ${lastUserMessage.height + 10}px)`
                 : "auto",
             }}
           >
@@ -70,13 +70,13 @@ function Messages(props: Props) {
           messages[messages.length - 1].parts.length == 0) && (
           <div
             style={{
-              minHeight: `calc(100% - ${lastMessageHeight + 50}px)`,
+              minHeight: `calc(100% - ${lastUserMessage.height + 10}px)`,
             }}
           >
             <MessageLoading />
           </div>
         )}
-      <div ref={lastMessageRef}>
+      <div ref={scrollRef}>
         <div ref={bottomElementRef}></div>
       </div>
     </div>

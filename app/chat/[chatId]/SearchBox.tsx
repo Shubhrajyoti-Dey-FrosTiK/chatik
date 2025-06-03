@@ -104,6 +104,7 @@ function SearchBox(props: SearchBoxProps) {
             onChange={(e) => {
               setSearchBoxData({ ...searchBoxData, text: e.target.value });
             }}
+            autoFocus
             onKeyDown={getHotkeyHandler([["Enter", submit]])}
             placeholder="Search anything..."
             className="border-none bg-transparent resize-none focus:outline-none text-md"
