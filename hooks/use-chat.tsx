@@ -270,6 +270,10 @@ function useChat(props: Props) {
       currentMessageId = nextMessageId;
     }
 
+    await updateMessageChain({
+      id: chatId as Id<"chats">,
+      chainIds: updatedChainIds as Id<"messages">[],
+    });
     // Sync up
     await syncChatStates(updatedChainIds, allMessages ?? []);
   };

@@ -10,7 +10,7 @@ import {
   UIMessage,
 } from "ai";
 import { Infer } from "convex/values";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const convex = getConvexClient();
 

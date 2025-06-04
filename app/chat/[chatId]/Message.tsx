@@ -1,12 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSchema } from "@/convex/schema";
+import { SwitchMessagePathsConfig } from "@/hooks/use-chat";
 import { Infer } from "convex/values";
 import dynamic from "next/dynamic";
-import { Suspense, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { MessageTools } from "./MessageTools";
 import SearchBox, { SearchBoxData } from "./SearchBox";
 import "./message.css";
-import { SwitchMessagePathsConfig } from "@/hooks/use-chat";
 
 const MemoizedMarkdown = dynamic(() =>
   import("@/components/markdown/Markdown").then((mod) => mod.MemoizedMarkdown),
