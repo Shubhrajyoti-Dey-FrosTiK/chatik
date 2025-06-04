@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import { v4 } from "uuid";
 import { mutation, query } from "./_generated/server";
 
 export const getByUser = query({
@@ -13,21 +12,29 @@ export const getByUser = query({
   },
 });
 
+export const get = query({
+  args: { id: v.id("chats") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 export const create = mutation({
   args: {
     user: v.id("user"),
     input: v.string(),
   },
-  handler: async (ctx, args): Promise<string> => {
-    const newMessageId = v4();
-
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ chatId: string; messageId: string }> => {
     let chatId = await ctx.db.insert("chats", {
       user: args.user,
       name: args.input,
+      chainIds: [],
     });
 
-    await ctx.db.insert<"messages">("messages", {
-      id: newMessageId,
+    const messageId = await ctx.db.insert<"messages">("messages", {
       chatId,
       role: "user",
       parts: [
@@ -38,6 +45,22 @@ export const create = mutation({
       ],
     });
 
-    return chatId;
+    await ctx.db.patch(chatId, {
+      chainIds: [messageId],
+    });
+
+    return { chatId, messageId };
+  },
+});
+
+export const updateChatMessageChain = mutation({
+  args: {
+    id: v.id("chats"),
+    chainIds: v.array(v.id("messages")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      chainIds: args.chainIds,
+    });
   },
 });

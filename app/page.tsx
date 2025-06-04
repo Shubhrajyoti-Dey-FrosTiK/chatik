@@ -16,20 +16,28 @@ export default function Home() {
   const router = useRouter();
 
   const createNewChat = async (data: SearchBoxData) => {
-    const chatId = await createChat({
+    const { chatId, messageId } = await createChat({
       input: data.text,
       user: (session?.user.id ?? "") as Id<"user">,
     });
-    await dexie.messages.add({
-      chatId: chatId as Id<"chats">,
-      role: "user",
-      parts: [
-        {
-          type: "text",
-          text: data.text,
-        },
-      ],
-    });
+    await Promise.all([
+      dexie.messages.add({
+        chatId: chatId as Id<"chats">,
+        role: "user",
+        _id: messageId as Id<"messages">,
+        parts: [
+          {
+            type: "text",
+            text: data.text,
+          },
+        ],
+      }),
+      dexie.chainIds.put({
+        chatId: chatId as Id<"chats">,
+        chainIds: [messageId],
+      }),
+    ]);
+
     router.push(`/chat/${chatId}`);
   };
 

@@ -35,31 +35,29 @@ const Code = memo(
       );
     }
     return (
-      <div>
-        <div className="[&>*]:!m-0">
-          <div className="flex justify-between items-center p-2 bg-gray-700">
-            <p>{language}</p>
-            {clipboard.copied ? (
-              <Check color="green" />
-            ) : (
-              <Copy
-                size={20}
-                onClick={() => {
-                  clipboard.copy(code);
-                }}
-              />
-            )}
-          </div>
-          <SyntaxHighlighter
-            customStyle={{
-              width: "100%",
-            }}
-            language={language}
-            style={dracula}
-          >
-            {highlightedCode}
-          </SyntaxHighlighter>
+      <div className="[&>*]:!m-0 my-4">
+        <div className="flex justify-between items-center p-2 bg-gray-700">
+          <p>{language}</p>
+          {clipboard.copied ? (
+            <Check color="green" />
+          ) : (
+            <Copy
+              size={20}
+              onClick={() => {
+                clipboard.copy(code);
+              }}
+            />
+          )}
         </div>
+        <SyntaxHighlighter
+          customStyle={{
+            width: "100%",
+          }}
+          language={language}
+          style={dracula}
+        >
+          {highlightedCode}
+        </SyntaxHighlighter>
       </div>
     );
   },

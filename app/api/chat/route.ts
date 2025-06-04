@@ -1,5 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { MessagePart } from "@/convex/schema";
 import { getConvexClient } from "@/lib/convex";
 import { google } from "@ai-sdk/google";
 import {
@@ -8,21 +9,23 @@ import {
   streamText,
   UIMessage,
 } from "ai";
-import { NextRequest } from "next/server";
-import { v4 } from "uuid";
+import { Infer } from "convex/values";
+import { NextRequest, NextResponse } from "next/server";
 
 const convex = getConvexClient();
 
 export interface NewMessageInChatRequest {
   chatId: string;
-  messages: UIMessage[];
+  messages: UIMessage<{ lastMessageId: string }>[];
+  messageChainIds: string[];
 }
 
 export async function POST(request: NextRequest) {
-  const { chatId, messages }: NewMessageInChatRequest = await request.json();
+  const { chatId, messages, messageChainIds }: NewMessageInChatRequest =
+    await request.json();
   const start = Date.now();
 
-  const stream = await streamText({
+  const result = streamText({
     system: `
     Answer the questions of the user very elaboratively
     Try not to go above 1000 words
@@ -33,23 +36,30 @@ export async function POST(request: NextRequest) {
     maxOutputTokens: 1200,
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream(),
-    onFinish({ content, sources, usage }) {
+    async onFinish({ content, sources, usage }) {
       const end = Date.now();
       const timeSpentMs = end - start;
-      convex.mutation(api.messages.create, {
+
+      const newMessageId = await convex.mutation(api.messages.create, {
         chatId: chatId as Id<"chats">,
-        id: v4(),
-        // eslint-disable-next-line
-        parts: content as any,
         role: "assistant",
+        prevMessage: messageChainIds[messageChainIds.length - 1] as
+          | Id<"messages">
+          | undefined,
+        parts: content as Infer<typeof MessagePart>[],
         sources,
         usage,
         time: timeSpentMs,
       });
+
+      await convex.mutation(api.chats.updateChatMessageChain, {
+        chainIds: [...messageChainIds, newMessageId] as Id<"messages">[],
+        id: chatId as Id<"chats">,
+      });
     },
   });
 
-  stream.consumeStream();
+  result.consumeStream();
 
-  return stream.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

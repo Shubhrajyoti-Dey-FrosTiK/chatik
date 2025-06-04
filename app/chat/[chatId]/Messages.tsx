@@ -1,18 +1,35 @@
 import { MessageSchema } from "@/convex/schema";
+import { useElementSize } from "@mantine/hooks";
 import { Infer } from "convex/values";
 import { RefObject, useEffect, useState } from "react";
+import { MessageGraph } from "./graph";
 import { Message, MessageLoading } from "./Message";
-import { useElementSize } from "@mantine/hooks";
+import { SearchBoxData } from "./SearchBox";
+import { SwitchMessagePathsConfig } from "@/hooks/use-chat";
 
 interface Props {
   messages: Array<Infer<typeof MessageSchema>>;
   scrollRef: RefObject<HTMLDivElement>;
   scrollIntoView: (params: { alignment: "center" | "start" | "end" }) => void;
   bottomElementRef: (node: HTMLDivElement) => void;
+  messageGraph: MessageGraph;
+  submit: (
+    SearchBoxData: SearchBoxData,
+    config?: { lastMessageId: string },
+  ) => Promise<void>;
+  switchMessagePaths: (config: SwitchMessagePathsConfig) => Promise<void>;
 }
 
 function Messages(props: Props) {
-  const { messages, scrollRef, scrollIntoView, bottomElementRef } = props;
+  const {
+    messages,
+    scrollRef,
+    scrollIntoView,
+    bottomElementRef,
+    messageGraph,
+    submit,
+    switchMessagePaths,
+  } = props;
   const [lastUserMessageIdx, setLastUserMessageIdx] = useState<number>(0);
   const lastUserMessage = useElementSize<HTMLDivElement>();
 
@@ -40,25 +57,35 @@ function Messages(props: Props) {
         return (
           <div
             ref={midx == lastUserMessageIdx ? lastUserMessage.ref : null}
-            key={`Message_${message.id}`}
+            key={`Message_${midx}`}
             className={`w-full group ${message.role == "assistant" && "pb-10 pt-2"}`}
             style={{
               minHeight: addExtraPadding
-                ? `calc(100% - ${lastUserMessage.height + 10}px)`
+                ? `calc(100% - ${lastUserMessage.height + 20}px)`
                 : "auto",
             }}
           >
             {message.role == "user" && (
               <div className="flex w-full justify-end">
                 <div className="bg-gray-800 max-w-[80%] px-4 py-2 rounded-sm">
-                  <Message message={message} />
+                  <Message
+                    submit={submit}
+                    message={message}
+                    messageChoices={messageGraph[message.prevMessage ?? "ROOT"]}
+                    switchMessagePaths={switchMessagePaths}
+                  />
                 </div>
               </div>
             )}
 
             {message.role == "assistant" && (
               <div>
-                <Message message={message} />
+                <Message
+                  message={message}
+                  messageChoices={messageGraph[message.prevMessage ?? "ROOT"]}
+                  submit={submit}
+                  switchMessagePaths={switchMessagePaths}
+                />
               </div>
             )}
           </div>
@@ -70,13 +97,13 @@ function Messages(props: Props) {
           messages[messages.length - 1].parts.length == 0) && (
           <div
             style={{
-              minHeight: `calc(100% - ${lastUserMessage.height + 10}px)`,
+              minHeight: `calc(100% - ${lastUserMessage.height + 25}px)`,
             }}
           >
             <MessageLoading />
           </div>
         )}
-      <div ref={scrollRef}>
+      <div ref={scrollRef} className="pb-5">
         <div ref={bottomElementRef}></div>
       </div>
     </div>

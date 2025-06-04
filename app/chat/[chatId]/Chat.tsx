@@ -15,7 +15,8 @@ interface Props {
 
 function Chat(props: Props) {
   const { chatId } = props;
-  const { uiMessages, submit, loading } = useChat({ chatId });
+  const { uiMessages, submit, loading, messageGraph, switchMessagePaths } =
+    useChat({ chatId });
   const searchbox = useElementSize();
   const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView<
     HTMLDivElement,
@@ -60,6 +61,9 @@ function Chat(props: Props) {
                   scrollRef={targetRef}
                   messages={uiMessages}
                   bottomElementRef={bottomElementRef}
+                  messageGraph={messageGraph}
+                  submit={submit}
+                  switchMessagePaths={switchMessagePaths}
                 />
               </div>
             </div>

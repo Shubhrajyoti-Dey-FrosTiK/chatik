@@ -4,6 +4,7 @@ import {
   AutosizeTextAreaRef,
 } from "@/components/input/textarea/auto-size-textarea";
 import Spinner from "@/components/spinner/spinner";
+import { Button } from "@/components/ui/button";
 import { getHotkeyHandler, useElementSize, useHotkeys } from "@mantine/hooks";
 import { ArrowDown, SendHorizontalIcon } from "lucide-react";
 import { RefObject, useRef, useState } from "react";
@@ -13,6 +14,8 @@ export interface SearchBoxData {
 }
 
 export interface SearchBoxProps {
+  initialData?: SearchBoxData;
+  closeEditMode?: () => void;
   submit: (searchBoxData: SearchBoxData) => Promise<void>;
   ref?: RefObject<HTMLDivElement>;
   goToBottom?: {
@@ -39,7 +42,7 @@ export function FloatingSearchBox(props: SearchBoxProps) {
 function SearchBox(props: SearchBoxProps) {
   const [searchBoxInFocus, setSearchBoxInFocus] = useState<boolean>(false);
   const [searchBoxData, setSearchBoxData] = useState<SearchBoxData>({
-    text: "",
+    text: props.initialData?.text ?? "",
   });
   const searchBoxRef = useRef<AutosizeTextAreaRef>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -113,6 +116,19 @@ function SearchBox(props: SearchBoxProps) {
             <div></div>
             {loading ? (
               <Spinner size={20} />
+            ) : props.closeEditMode ? (
+              <div className="flex gap-5">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={props.closeEditMode}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={submit} size="sm">
+                  Edit
+                </Button>
+              </div>
             ) : (
               <SendHorizontalIcon onClick={submit} className="cursor-pointer" />
             )}
