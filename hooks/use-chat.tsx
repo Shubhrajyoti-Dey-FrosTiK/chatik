@@ -66,8 +66,6 @@ function useChat(props: Props) {
       );
       const chainIds = (await dexie.chainIds.get(chatId))?.chainIds ?? [];
 
-      console.log(allMessages, chainIds);
-
       await syncChatStates(chainIds, allMessages);
       setLoading(false);
     } catch (error) {

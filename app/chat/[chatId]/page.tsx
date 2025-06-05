@@ -9,7 +9,9 @@ async function Page(props: Props) {
 
   return (
     <div className="relative min-h-full">
-      <Chat chatId={chatId} />
+      <div className="h-full w-full flex flex-row gap-2 justify-evenly">
+        <Chat chatId={chatId} />
+      </div>
     </div>
   );
 }

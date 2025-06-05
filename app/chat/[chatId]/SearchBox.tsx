@@ -24,22 +24,15 @@ export interface SearchBoxProps {
 }
 
 export function FloatingSearchBox(props: SearchBoxProps) {
-  const searchbox = useElementSize();
-
   return (
-    <div
-      ref={searchbox.ref}
-      className="w-full mx-auto absolute bottom-0 m-auto max-w-[800px] w-[95vw]"
-      style={{
-        left: `calc(50% - ${(searchbox.width || 800) / 2}px)`,
-      }}
-    >
+    <div className="w-full mx-auto absolute bottom-0 m-auto max-w-[800px] w-[95vw]">
       <SearchBox {...props} />
     </div>
   );
 }
 
 function SearchBox(props: SearchBoxProps) {
+  const searchbox = useElementSize();
   const [searchBoxInFocus, setSearchBoxInFocus] = useState<boolean>(false);
   const [searchBoxData, setSearchBoxData] = useState<SearchBoxData>({
     text: props.initialData?.text ?? "",
@@ -68,9 +61,14 @@ function SearchBox(props: SearchBoxProps) {
   };
 
   return (
-    <div>
+    <div ref={props.ref}>
       {props.goToBottom && (
-        <div className="flex w-full justify-center my-2 relative z-10">
+        <div
+          className="flex w-full justify-center my-2 absolute z-10"
+          style={{
+            bottom: `${searchbox.height + 20}px`,
+          }}
+        >
           <span
             className="bg-black p-2 rounded-full border-1 cursor-pointer"
             onClick={() => {
@@ -84,7 +82,7 @@ function SearchBox(props: SearchBoxProps) {
         </div>
       )}
       <div
-        ref={props.ref}
+        ref={searchbox.ref}
         className="relative w-full"
         onClick={() => {
           searchBoxRef?.current?.textArea.focus();

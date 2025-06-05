@@ -28,20 +28,9 @@ function Chat(props: Props) {
     useInViewport<HTMLDivElement>();
 
   return (
-    <div className="h-full">
-      <FloatingSearchBox
-        ref={searchbox.ref}
-        submit={submit}
-        goToBottom={
-          !hasBottomReached
-            ? {
-                scrollIntoView,
-              }
-            : undefined
-        }
-      />
+    <div className="h-full w-full">
       {loading ? (
-        <div className="h-full m-auto max-w-[800px] w-[95vw]">
+        <div className="h-full m-auto max-w-[800px] w-full ">
           <MessageLoading />
         </div>
       ) : (
@@ -52,10 +41,10 @@ function Chat(props: Props) {
               ref={scrollableRef}
               className="overflow-scroll no-scrollbar"
               style={{
-                height: `calc(100dvh - ${(searchbox.height || 60) + 60}px)`,
+                height: `calc(100dvh - ${(searchbox.height || 60) + 70}px)`,
               }}
             >
-              <div className="m-auto max-w-[800px] w-[95vw] h-full">
+              <div className="m-auto max-w-[800px] w-full h-full">
                 <Messages
                   scrollIntoView={scrollIntoView}
                   scrollRef={targetRef}
@@ -72,6 +61,19 @@ function Chat(props: Props) {
           )}
         </div>
       )}
+      <div className="m-auto max-w-[800px] w-full">
+        <FloatingSearchBox
+          ref={searchbox.ref}
+          submit={submit}
+          goToBottom={
+            !hasBottomReached
+              ? {
+                  scrollIntoView,
+                }
+              : undefined
+          }
+        />
+      </div>
     </div>
   );
 }
