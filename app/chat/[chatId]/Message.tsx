@@ -1,5 +1,7 @@
+import Attachments from "@/components/attachments/Attachment";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageSchema } from "@/convex/schema";
+import { MessageSchema } from "@/convex/schema/message";
+import { convertMessageAttachmentToClientSideAttachment } from "@/hooks/use-attachments";
 import { SwitchMessagePathsConfig } from "@/hooks/use-chat";
 import { Infer } from "convex/values";
 import dynamic from "next/dynamic";
@@ -46,7 +48,9 @@ export function Message(props: MessageProps) {
   };
 
   return (
-    <div className="relative">
+    <div
+      className={`${message.role == "user" && !editMode && "max-w-[80%] bg-gray-700"} relative px-4 py-2 rounded-sm`}
+    >
       {editMode == false && (
         <MessageTools
           {...props}
@@ -59,7 +63,12 @@ export function Message(props: MessageProps) {
       {editMode ? (
         <div className="min-w-[500px]">
           <SearchBox
-            initialData={{ text: messageRef.current?.innerText ?? "" }}
+            initialData={{
+              text: messageRef.current?.innerText ?? "",
+              attachments: convertMessageAttachmentToClientSideAttachment(
+                message.attachments ?? [],
+              ),
+            }}
             submit={submitEdit}
             closeEditMode={() => setEditMode(false)}
           />
@@ -69,6 +78,11 @@ export function Message(props: MessageProps) {
           className={`leading-5 text-lg message ${message.role}`}
           ref={messageRef}
         >
+          <Attachments
+            attachments={convertMessageAttachmentToClientSideAttachment(
+              message.attachments ?? [],
+            )}
+          />
           {message.parts.map((part, partIdx) => {
             switch (part.type) {
               case "file":

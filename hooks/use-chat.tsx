@@ -2,12 +2,13 @@ import { createMessageGraph, MessageGraph } from "@/app/chat/[chatId]/graph";
 import { SearchBoxData } from "@/app/chat/[chatId]/SearchBox";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { MessagePart, MessageSchema } from "@/convex/schema";
+import { MessagePart, MessageSchema } from "@/convex/schema/message";
 import { dexie } from "@/lib/dexie";
 import { UIMessage, useChat as useAISDKChat } from "@ai-sdk/react";
 import { useMutation, useQuery } from "convex/react";
 import { Infer } from "convex/values";
 import { useEffect, useState } from "react";
+import { convertClientSideAttachmentToMessageAttachment } from "./use-attachments";
 
 interface Props {
   chatId: string;
@@ -173,6 +174,15 @@ function useChat(props: Props) {
         text: data.text,
       },
     ];
+    if (data.attachments) {
+      data.attachments.forEach((attachment) => {
+        parts.push({
+          type: "file",
+          mediaType: attachment.contentType,
+          url: attachment.url,
+        });
+      });
+    }
 
     let resultantLastMessageId: Id<"messages"> | undefined = chainIds[
       chainIds.length - 1
@@ -187,6 +197,9 @@ function useChat(props: Props) {
       role: "user",
       parts,
       prevMessage: resultantLastMessageId,
+      attachments: convertClientSideAttachmentToMessageAttachment(
+        data.attachments,
+      ),
     });
 
     const updatedChainIds = [];

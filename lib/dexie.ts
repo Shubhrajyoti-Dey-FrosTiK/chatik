@@ -1,5 +1,5 @@
 // db.ts
-import { MessageSchema } from "@/convex/schema";
+import { MessageSchema } from "@/convex/schema/message";
 import { Infer } from "convex/values";
 import Dexie, { type EntityTable } from "dexie";
 

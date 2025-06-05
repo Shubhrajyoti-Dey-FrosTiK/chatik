@@ -1,6 +1,7 @@
 import { Infer, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import schema, { MessageSchema } from "./schema";
+import { MessageSchema } from "./schema/message";
+import schema from "./schema";
 
 export const getByChatId = query({
   args: { chatId: v.id("chats") },

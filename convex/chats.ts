@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { MessagePart } from "./schema/message";
 
 export const getByUser = query({
   args: { user: v.string() },
@@ -22,7 +23,8 @@ export const get = query({
 export const create = mutation({
   args: {
     user: v.id("user"),
-    input: v.string(),
+    name: v.string(),
+    parts: v.array(MessagePart),
   },
   handler: async (
     ctx,
@@ -30,19 +32,14 @@ export const create = mutation({
   ): Promise<{ chatId: string; messageId: string }> => {
     let chatId = await ctx.db.insert("chats", {
       user: args.user,
-      name: args.input,
+      name: args.name,
       chainIds: [],
     });
 
     const messageId = await ctx.db.insert<"messages">("messages", {
       chatId,
       role: "user",
-      parts: [
-        {
-          type: "text",
-          text: args.input,
-        },
-      ],
+      parts: args.parts,
     });
 
     await ctx.db.patch(chatId, {

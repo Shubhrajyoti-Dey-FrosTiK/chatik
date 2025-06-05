@@ -1,4 +1,4 @@
-import { MessageSchema } from "@/convex/schema";
+import { MessageSchema } from "@/convex/schema/message";
 import { Infer } from "convex/values";
 
 export type MessageGraph = Record<string, Array<Infer<typeof MessageSchema>>>;

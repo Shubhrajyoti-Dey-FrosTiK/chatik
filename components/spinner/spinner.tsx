@@ -5,10 +5,10 @@ function Spinner(props: LoaderSizeProps) {
   return (
     <div>
       <div className="dark:hidden">
-        <ClipLoader {...props} color="white" />
+        <ClipLoader color="white" {...props} />
       </div>
       <div className="hidden dark:block">
-        <ClipLoader {...props} color="white" />
+        <ClipLoader color="white" {...props} />
       </div>
     </div>
   );

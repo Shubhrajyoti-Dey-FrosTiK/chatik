@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { MessagePart } from "@/convex/schema";
+import { MessagePart } from "@/convex/schema/message";
 import { getConvexClient } from "@/lib/convex";
 import { google } from "@ai-sdk/google";
 import {
@@ -24,6 +24,21 @@ export async function POST(request: NextRequest) {
   const { chatId, messages, messageChainIds }: NewMessageInChatRequest =
     await request.json();
   const start = Date.now();
+
+  for (const message of messages) {
+    if (message.parts) {
+      for (const part of message.parts) {
+        if (part.type === "file" && part.url) {
+          // Fetch the file and convert to base64
+          const response = await fetch(part.url);
+          const arrayBuffer = await response.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString("base64");
+          // Replace the url with base64 data
+          part.url = `data:${response.headers.get("content-type")};base64,${base64}`;
+        }
+      }
+    }
+  }
 
   const result = streamText({
     system: `

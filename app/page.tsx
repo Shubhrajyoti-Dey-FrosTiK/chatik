@@ -9,6 +9,8 @@ import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import SearchBox, { SearchBoxData } from "./chat/[chatId]/SearchBox";
 import { dexie } from "@/lib/dexie";
+import { Infer } from "convex/values";
+import { MessagePart } from "@/convex/schema/message";
 
 export default function Home() {
   const { data: session, isPending } = authClient.useSession();
@@ -16,8 +18,19 @@ export default function Home() {
   const router = useRouter();
 
   const createNewChat = async (data: SearchBoxData) => {
+    const parts: Infer<typeof MessagePart>[] = [
+      { type: "text", text: data.text },
+      ...data.attachments.map((attachment) => {
+        return {
+          type: "file" as const,
+          mediaType: attachment.contentType,
+          url: attachment.url,
+        };
+      }),
+    ];
     const { chatId, messageId } = await createChat({
-      input: data.text,
+      name: data.text,
+      parts,
       user: (session?.user.id ?? "") as Id<"user">,
     });
     await Promise.all([
@@ -25,12 +38,7 @@ export default function Home() {
         chatId: chatId as Id<"chats">,
         role: "user",
         _id: messageId as Id<"messages">,
-        parts: [
-          {
-            type: "text",
-            text: data.text,
-          },
-        ],
+        parts,
       }),
       dexie.chainIds.put({
         chatId: chatId as Id<"chats">,

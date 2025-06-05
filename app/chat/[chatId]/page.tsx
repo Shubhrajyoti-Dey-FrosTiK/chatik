@@ -11,6 +11,9 @@ async function Page(props: Props) {
     <div className="relative min-h-full">
       <div className="h-full w-full flex flex-row gap-2 justify-evenly">
         <Chat chatId={chatId} />
+        {/* <div className="w-[500px] h-[800px]">
+          <PDFViewer />
+        </div> */}
       </div>
     </div>
   );

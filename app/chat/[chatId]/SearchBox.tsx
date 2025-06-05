@@ -1,16 +1,30 @@
 "use client";
-import {
-  AutosizeTextarea,
-  AutosizeTextAreaRef,
-} from "@/components/input/textarea/auto-size-textarea";
-import Spinner from "@/components/spinner/spinner";
+import { AutosizeTextAreaRef } from "@/components/ui/auto-size-textarea";
 import { Button } from "@/components/ui/button";
-import { getHotkeyHandler, useElementSize, useHotkeys } from "@mantine/hooks";
-import { ArrowDown, SendHorizontalIcon } from "lucide-react";
-import { RefObject, useRef, useState } from "react";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import {
+  PromptInput,
+  PromptInputAction,
+  PromptInputActions,
+  PromptInputTextarea,
+} from "@/components/ui/prompt-input";
+import { useElementSize, useHotkeys, useLocalStorage } from "@mantine/hooks";
+import { ArrowDown, ArrowUp, LucidePaperclip, Square } from "lucide-react";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { useFileDialog } from "@mantine/hooks";
+import { ClientSideAttachment, useAttachments } from "@/hooks/use-attachments";
+import Attachments from "@/components/attachments/Attachment";
 
 export interface SearchBoxData {
   text: string;
+  attachments: ClientSideAttachment[];
 }
 
 export interface SearchBoxProps {
@@ -32,19 +46,62 @@ export function FloatingSearchBox(props: SearchBoxProps) {
 }
 
 function SearchBox(props: SearchBoxProps) {
-  const searchbox = useElementSize();
-  const [searchBoxInFocus, setSearchBoxInFocus] = useState<boolean>(false);
-  const [searchBoxData, setSearchBoxData] = useState<SearchBoxData>({
-    text: props.initialData?.text ?? "",
+  // Load localstorage
+  const [cachedSearcBoxData, setCachedSearchBoxData] = useLocalStorage({
+    defaultValue: JSON.stringify({
+      text: "",
+      attachments: [],
+    }),
+    key: "chatik-search",
+    getInitialValueInEffect: false,
   });
+
+  // Refs
+  const searchbox = useElementSize();
   const searchBoxRef = useRef<AutosizeTextAreaRef>(null);
+
+  // States
+  const [searchBoxInFocus, setSearchBoxInFocus] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchBoxData, setSearchBoxData] = useState<SearchBoxData>(
+    props.initialData ?? JSON.parse(cachedSearcBoxData),
+  );
+
+  // File Picker
+  const {
+    handleBatchFileUplaods,
+    attachments,
+    handleDeleteAttachmentById,
+    clearAttachments,
+  } = useAttachments({
+    initialAttachments: searchBoxData.attachments,
+  });
+  const pdfInput = useFileDialog({
+    accept: "application/pdf",
+    onChange: async (files: FileList | null) => {
+      searchBoxRef.current?.textArea.focus();
+      if (!files) return;
+      await handleBatchFileUplaods(files);
+    },
+  });
+  const imageInput = useFileDialog({
+    accept: "image/jpeg,image/jpg,image/png",
+    onChange: async (files: FileList | null) => {
+      searchBoxRef.current?.textArea.focus();
+      if (!files) return;
+      await handleBatchFileUplaods(files);
+    },
+  });
+
+  // Hotkeys
   useHotkeys([
     [
       "Tab",
       () => {
-        if (document.activeElement !== searchBoxRef.current?.textArea) {
+        if (document.activeElement !== searchBoxRef.current) {
           searchBoxRef.current?.textArea.focus();
+        } else {
+          document.getElementById("messages-container")?.focus();
         }
       },
     ],
@@ -52,13 +109,26 @@ function SearchBox(props: SearchBoxProps) {
 
   const submit = async () => {
     if (loading) return;
-    setSearchBoxData({
-      text: "",
-    });
-    setLoading(true);
+    console.log("Hello");
     await props.submit(searchBoxData);
+    const emptySearchBoxData = { text: "", attachments: [] };
+    setSearchBoxData(emptySearchBoxData);
+    setCachedSearchBoxData(JSON.stringify(emptySearchBoxData));
+    clearAttachments();
+    setLoading(true);
     setLoading(false);
   };
+
+  useEffect(() => {
+    setSearchBoxData((prev) => ({ ...prev, attachments }));
+    if (props.closeEditMode) return;
+    setCachedSearchBoxData(
+      JSON.stringify({
+        text: searchBoxData.text,
+        attachments,
+      }),
+    );
+  }, [attachments]);
 
   return (
     <div ref={props.ref}>
@@ -66,7 +136,7 @@ function SearchBox(props: SearchBoxProps) {
         <div
           className="flex w-full justify-center my-2 absolute z-10"
           style={{
-            bottom: `${searchbox.height + 20}px`,
+            bottom: `${searchbox.height}px`,
           }}
         >
           <span
@@ -88,11 +158,28 @@ function SearchBox(props: SearchBoxProps) {
           searchBoxRef?.current?.textArea.focus();
         }}
       >
-        <div
-          className={`bg-zinc-800 p-5 rounded-md w-full relative z-20 ${searchBoxInFocus ? "border-1 border-primary" : ""}`}
+        <PromptInput
+          value={searchBoxData.text}
+          onValueChange={(text) => {
+            setSearchBoxData((d) => ({ ...d, text }));
+
+            // Dont cache for edit mode
+            if (props.closeEditMode) return;
+            setCachedSearchBoxData(JSON.stringify({ ...searchBoxData, text }));
+          }}
+          isLoading={loading}
+          onSubmit={submit}
+          className={`w-full bg-zinc-800 ${searchBoxInFocus ? "border-1 border-primary" : ""}`}
         >
-          <AutosizeTextarea
-            ref={searchBoxRef}
+          <Attachments
+            attachments={attachments}
+            handleDeleteAttachmentById={handleDeleteAttachmentById}
+          />
+          <PromptInputTextarea
+            className="bg-zinc-800 my-1"
+            style={{
+              background: "var(--color-zinc-800)",
+            }}
             maxHeight={200}
             onFocusCapture={(e) => {
               e.stopPropagation();
@@ -101,37 +188,66 @@ function SearchBox(props: SearchBoxProps) {
             onBlur={() => {
               setSearchBoxInFocus(false);
             }}
-            value={searchBoxData.text}
-            onChange={(e) => {
-              setSearchBoxData({ ...searchBoxData, text: e.target.value });
-            }}
             autoFocus
-            onKeyDown={getHotkeyHandler([["Enter", submit]])}
-            placeholder="Search anything..."
-            className="border-none bg-transparent resize-none focus:outline-none text-md"
+            ref={searchBoxRef}
+            placeholder="Ask me anything..."
           />
-          <div className="flex items-center justify-between">
-            <div></div>
-            {loading ? (
-              <Spinner size={20} />
-            ) : props.closeEditMode ? (
-              <div className="flex gap-5">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={props.closeEditMode}
+          <PromptInputActions className="justify-between pt-1">
+            <div>
+              <Menubar className="p-0 bg-zinc-800 border-none">
+                <MenubarMenu>
+                  <MenubarTrigger className="bg-zinc-800 p-0">
+                    <LucidePaperclip
+                      style={{
+                        rotate: "-35deg",
+                      }}
+                    />
+                  </MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem onClick={pdfInput.open}>
+                      PDF <MenubarShortcut>.pdf</MenubarShortcut>
+                    </MenubarItem>
+                    <MenubarItem onClick={imageInput.open}>
+                      Image <MenubarShortcut>.png, .jpg, .jpeg</MenubarShortcut>
+                    </MenubarItem>
+                    <MenubarItem>
+                      Yotube <MenubarShortcut></MenubarShortcut>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            </div>
+            <PromptInputAction
+              tooltip={loading ? "Stop generation" : "Send message"}
+            >
+              {props.closeEditMode ? (
+                <div className="flex gap-2 items-center mx-2">
+                  <Button
+                    onClick={props.closeEditMode}
+                    size="sm"
+                    variant="secondary"
+                  >
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={submit}>
+                    Edit
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  className="h-8 w-8 rounded-full bg-white flex items-center justify-center"
+                  onClick={submit}
                 >
-                  Cancel
-                </Button>
-                <Button onClick={submit} size="sm">
-                  Edit
-                </Button>
-              </div>
-            ) : (
-              <SendHorizontalIcon onClick={submit} className="cursor-pointer" />
-            )}
-          </div>
-        </div>
+                  {loading ? (
+                    <Square color="black" className="size-5 fill-current" />
+                  ) : (
+                    <ArrowUp color="black" className="size-5" />
+                  )}
+                </div>
+              )}
+            </PromptInputAction>
+          </PromptInputActions>
+        </PromptInput>
       </div>
     </div>
   );

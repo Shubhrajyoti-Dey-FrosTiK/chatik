@@ -1,4 +1,4 @@
-import { MessageSchema } from "@/convex/schema";
+import { MessageSchema } from "@/convex/schema/message";
 import { useElementSize } from "@mantine/hooks";
 import { Infer } from "convex/values";
 import { RefObject, useEffect, useState } from "react";
@@ -50,7 +50,7 @@ function Messages(props: Props) {
   }, [messages.length]);
 
   return (
-    <div className="w-full h-full relative z-0">
+    <div className="w-full h-full relative z-0" id="messages-container">
       {messages.map((message, midx) => {
         const addExtraPadding =
           midx == messages.length - 1 && message.role == "assistant";
@@ -67,14 +67,12 @@ function Messages(props: Props) {
           >
             {message.role == "user" && (
               <div className="flex w-full justify-end">
-                <div className="bg-gray-800 max-w-[80%] px-4 py-2 rounded-sm">
-                  <Message
-                    submit={submit}
-                    message={message}
-                    messageChoices={messageGraph[message.prevMessage ?? "ROOT"]}
-                    switchMessagePaths={switchMessagePaths}
-                  />
-                </div>
+                <Message
+                  submit={submit}
+                  message={message}
+                  messageChoices={messageGraph[message.prevMessage ?? "ROOT"]}
+                  switchMessagePaths={switchMessagePaths}
+                />
               </div>
             )}
 

@@ -11,7 +11,9 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
+import { convertMessageAttachmentToClientSideAttachment } from "@/hooks/use-attachments";
 import { useClipboard } from "@mantine/hooks";
+import { IconReload } from "@tabler/icons-react";
 import {
   Check,
   ChevronLeft,
@@ -22,7 +24,6 @@ import {
 } from "lucide-react";
 import { memo, RefObject } from "react";
 import { MessageProps } from "./Message";
-import { IconReload } from "@tabler/icons-react";
 
 export const MessageTools = memo(
   (
@@ -46,9 +47,9 @@ export const MessageTools = memo(
 
     return (
       <div
-        className={`absolute z-2 rounded-md px-3 py-2 bg-zinc-700 ${message.role == "user" ? "right-[-20px]" : "left-0"} opacity-0 flex items-center gap-5 group-hover:opacity-100 transition-opacity`}
+        className={`absolute z-2 rounded-md px-3 py-2 bg-zinc-700 ${message.role == "user" ? "right-0" : "left-3"} opacity-0 flex items-center gap-5 group-hover:opacity-100 transition-opacity`}
         style={{
-          bottom: "-50px",
+          bottom: "-45px",
         }}
       >
         {copied ? (
@@ -108,6 +109,9 @@ export const MessageTools = memo(
                     message.parts[0].type == "text"
                       ? message.parts[0].text
                       : "",
+                  attachments: convertMessageAttachmentToClientSideAttachment(
+                    message.attachments ?? [],
+                  ),
                 },
                 {
                   lastMessageId: message.prevMessage ?? "ROOT",
