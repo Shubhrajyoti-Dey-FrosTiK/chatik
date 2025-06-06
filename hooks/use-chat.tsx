@@ -65,11 +65,16 @@ function useChat(props: Props) {
       updatedAllMessages.sort(
         (a, b) => (a._creationTime ?? 0) - (b._creationTime ?? 0),
       );
-      const updatedChainIds =
-        (await dexie.chainIds.get(chatId))?.chainIds ?? [];
+      const updatedChainIds = (await dexie.chainIds.get(chatId))?.chainIds;
 
       // Dont overwrite if the messages are already loaded from the server
-      if (allMessages?.length || chainIds.length) return;
+      if (
+        allMessages?.length ||
+        chainIds.length ||
+        !updatedAllMessages?.length ||
+        !updatedChainIds?.length
+      )
+        return;
 
       await syncChatStates(updatedChainIds, updatedAllMessages);
       setLoading(false);
