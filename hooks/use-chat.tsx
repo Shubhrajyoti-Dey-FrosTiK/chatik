@@ -58,16 +58,20 @@ function useChat(props: Props) {
    */
   const loadCachedMessages = async () => {
     try {
-      const allMessages = await dexie.messages
+      const updatedAllMessages = await dexie.messages
         .where("chatId")
         .equals(chatId)
         .toArray();
-      allMessages.sort(
+      updatedAllMessages.sort(
         (a, b) => (a._creationTime ?? 0) - (b._creationTime ?? 0),
       );
-      const chainIds = (await dexie.chainIds.get(chatId))?.chainIds ?? [];
+      const updatedChainIds =
+        (await dexie.chainIds.get(chatId))?.chainIds ?? [];
 
-      await syncChatStates(chainIds, allMessages);
+      // Dont overwrite if the messages are already loaded from the server
+      if (allMessages?.length || chainIds.length) return;
+
+      await syncChatStates(updatedChainIds, updatedAllMessages);
       setLoading(false);
     } catch (error) {
       console.error(error);
