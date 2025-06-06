@@ -25,6 +25,7 @@ function SidebarWrapper(props: Props) {
       <AppSidebar {...props} />
       <SidebarInset
         style={{
+          width: "100px", // Hack
           paddingTop: `${topnav.height || 65}px`,
         }}
       >

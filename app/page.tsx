@@ -38,6 +38,7 @@ export default function Home() {
         chatId: chatId as Id<"chats">,
         role: "user",
         _id: messageId as Id<"messages">,
+        attachments: data.attachments,
         parts,
       }),
       dexie.chainIds.put({

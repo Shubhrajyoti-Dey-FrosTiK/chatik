@@ -109,12 +109,12 @@ function SearchBox(props: SearchBoxProps) {
 
   const submit = async () => {
     if (loading) return;
-    console.log("Hello");
-    await props.submit(searchBoxData);
+    const submitPromise = props.submit(searchBoxData);
     const emptySearchBoxData = { text: "", attachments: [] };
     setSearchBoxData(emptySearchBoxData);
     setCachedSearchBoxData(JSON.stringify(emptySearchBoxData));
     clearAttachments();
+    await submitPromise;
     setLoading(true);
     setLoading(false);
   };

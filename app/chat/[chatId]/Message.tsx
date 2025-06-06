@@ -48,68 +48,76 @@ export function Message(props: MessageProps) {
   };
 
   return (
-    <div
-      className={`${message.role == "user" && !editMode && "max-w-[80%] bg-gray-700"} relative px-4 py-2 rounded-sm`}
-    >
+    <div className={`${message.role == "user" && "max-w-[80%]"}`}>
       {editMode == false && (
-        <MessageTools
-          {...props}
-          messageRef={messageRef}
-          toggleEditMode={() => {
-            setEditMode((prev) => !prev);
-          }}
+        <Attachments
+          attachments={convertMessageAttachmentToClientSideAttachment(
+            message.attachments ?? [],
+          )}
         />
       )}
-      {editMode ? (
-        <div className="min-w-[500px]">
-          <SearchBox
-            initialData={{
-              text: messageRef.current?.innerText ?? "",
-              attachments: convertMessageAttachmentToClientSideAttachment(
-                message.attachments ?? [],
-              ),
-            }}
-            submit={submitEdit}
-            closeEditMode={() => setEditMode(false)}
-          />
-        </div>
-      ) : (
+      <div
+        className={`w-full flex ${message.role == "user" ? "justify-end" : "justify-start"} my-1`}
+      >
         <div
-          className={`leading-5 text-lg message ${message.role}`}
-          ref={messageRef}
+          className={`${message.role == "user" && !editMode && "bg-gray-700"} relative px-4 py-2 rounded-sm`}
         >
-          <Attachments
-            attachments={convertMessageAttachmentToClientSideAttachment(
-              message.attachments ?? [],
-            )}
-          />
-          {message.parts.map((part, partIdx) => {
-            switch (part.type) {
-              case "file":
-                <div>{part.filename}</div>;
-                break;
-              case "text":
-                return (
-                  <MemoizedMarkdown
-                    key={`${message._id}_${partIdx}`}
-                    id={message._id ?? ""}
-                    markdown={part.text}
-                  />
-                );
-              case "reasoning":
-                return (
-                  <div>
-                    Reasoning:
-                    <p>{part.text}</p>
-                  </div>
-                );
+          {editMode == false && (
+            <MessageTools
+              {...props}
+              messageRef={messageRef}
+              toggleEditMode={() => {
+                setEditMode((prev) => !prev);
+              }}
+            />
+          )}
+          {editMode ? (
+            <div className="min-w-[500px]">
+              <SearchBox
+                initialData={{
+                  text: messageRef.current?.innerText ?? "",
+                  attachments: convertMessageAttachmentToClientSideAttachment(
+                    message.attachments ?? [],
+                  ),
+                }}
+                submit={submitEdit}
+                closeEditMode={() => setEditMode(false)}
+              />
+            </div>
+          ) : (
+            <div
+              className={`leading-5 text-lg message ${message.role}`}
+              ref={messageRef}
+            >
+              {message.parts.map((part, partIdx) => {
+                switch (part.type) {
+                  case "file":
+                    <div>{part.filename}</div>;
+                    break;
+                  case "text":
+                    return (
+                      <MemoizedMarkdown
+                        key={`${message._id}_${partIdx}`}
+                        id={message._id ?? ""}
+                        markdown={part.text}
+                      />
+                    );
+                  case "reasoning":
+                    return (
+                      <div>
+                        Reasoning:
+                        <p>{part.text}</p>
+                      </div>
+                    );
 
-              default:
-                return null;
-            }
-          })}
+                  default:
+                    return null;
+                }
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
