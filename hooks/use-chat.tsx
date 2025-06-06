@@ -111,7 +111,11 @@ function useChat(props: Props) {
       fetchInitialMessageResponse();
     }
     const lastMessageId = allMessages[allMessages.length - 1]._id ?? "";
-    await syncChatStates([...chainIds, lastMessageId], allMessages);
+
+    const updatedChainIds = chainIds.includes(lastMessageId)
+      ? chainIds
+      : [...chainIds, lastMessageId];
+    await syncChatStates(updatedChainIds, allMessages);
   };
   useEffect(() => {
     handleMessageUpdates();
@@ -124,6 +128,7 @@ function useChat(props: Props) {
   const handleChatUpdates = async () => {
     if (!chat) return;
     const chainIds = chat.chainIds ?? [];
+
     await syncChatStates(chainIds, allMessages ?? []);
   };
   useEffect(() => {
