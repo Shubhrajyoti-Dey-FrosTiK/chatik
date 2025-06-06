@@ -11,7 +11,7 @@ import SearchBox, { SearchBoxData } from "./SearchBox";
 import "./message.css";
 
 const MemoizedMarkdown = dynamic(() =>
-  import("@/components/markdown/Markdown").then((mod) => mod.MemoizedMarkdown),
+  import("@/components/markdown/Renderer").then((mod) => mod.Markdown),
 );
 
 export function MessageLoading() {
@@ -60,7 +60,7 @@ export function Message(props: MessageProps) {
         className={`w-full flex ${message.role == "user" ? "justify-end" : "justify-start"} my-1`}
       >
         <div
-          className={`${message.role == "user" && !editMode && "bg-gray-700"} relative px-4 py-2 rounded-sm`}
+          className={`${message.role == "user" && !editMode && "bg-gray-700"} ${message.role == "assistant" && "w-full"} relative px-4 py-2 rounded-sm`}
         >
           {editMode == false && (
             <MessageTools
