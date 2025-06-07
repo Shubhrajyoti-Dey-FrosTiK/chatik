@@ -11,6 +11,7 @@ import SearchBox, { SearchBoxData } from "./chat/[chatId]/SearchBox";
 import { dexie } from "@/lib/dexie";
 import { Infer } from "convex/values";
 import { MessagePart } from "@/convex/schema/message";
+import { convertClientSideAttachmentToMessageAttachment } from "@/hooks/use-attachments";
 
 export default function Home() {
   const { data: session, isPending } = authClient.useSession();
@@ -32,6 +33,9 @@ export default function Home() {
       name: data.text,
       parts,
       user: (session?.user.id ?? "") as Id<"user">,
+      attachments: convertClientSideAttachmentToMessageAttachment(
+        data.attachments,
+      ),
     });
     await Promise.all([
       dexie.messages.add({

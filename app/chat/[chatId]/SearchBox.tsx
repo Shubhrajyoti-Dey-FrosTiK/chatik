@@ -108,7 +108,7 @@ function SearchBox(props: SearchBoxProps) {
   ]);
 
   const submit = async () => {
-    if (loading) return;
+    if (loading || searchBoxData.text == "") return;
     const submitPromise = props.submit(searchBoxData);
     const emptySearchBoxData = { text: "", attachments: [] };
     setSearchBoxData(emptySearchBoxData);
@@ -235,13 +235,13 @@ function SearchBox(props: SearchBoxProps) {
                 </div>
               ) : (
                 <div
-                  className="h-8 w-8 rounded-full bg-white flex items-center justify-center"
+                  className={`h-8 w-8 rounded-full bg-white flex items-center justify-center  ${searchBoxData.text == "" && "opacity-50"}`}
                   onClick={submit}
                 >
                   {loading ? (
                     <Square color="black" className="size-5 fill-current" />
                   ) : (
-                    <ArrowUp color="black" className="size-5" />
+                    <ArrowUp color="black" className={`size-5`} />
                   )}
                 </div>
               )}
